@@ -1,6 +1,6 @@
-package com.piotr.kafel.atlassian.rate.limiter;
+package com.piotrkafel.atlassian.rate.limiter;
 
-import com.piotr.kafel.atlassian.rate.limiter.util.MockClock;
+import com.piotrkafel.atlassian.rate.limiter.util.MockClock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class SlidingWindowRateLimiterTest {
+public class FixedWindowRateLimiterSimpleTest {
 
     private MockClock clock;
 
@@ -20,19 +20,20 @@ public class SlidingWindowRateLimiterTest {
     @Test
     public void shouldThrowExceptionWhenPassedNegativeNumberOfMaxRequests() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new SlidingWindowRateLimiter<Long>(-1, 2, TimeUnit.NANOSECONDS, clock));
+                () -> new FixedWindowRateLimiterSimple<Long>(-1, 2, TimeUnit.NANOSECONDS, clock));
     }
 
     @Test
     public void shouldAllowOnlyRequestBelowCapacityPerWindow() {
         final UUID requestId = UUID.randomUUID();
-        final SlidingWindowRateLimiter<UUID> rateLimiter = new SlidingWindowRateLimiter<>(2, 3, TimeUnit.NANOSECONDS, clock);
+        final FixedWindowRateLimiterSimple<UUID> rateLimiter = new FixedWindowRateLimiterSimple<>(1, 5, TimeUnit.NANOSECONDS, clock);
 
         Assertions.assertTrue(rateLimiter.handleRequest(requestId));
-        clock.increaseBy(1);
-        Assertions.assertTrue(rateLimiter.handleRequest(requestId));
         Assertions.assertFalse(rateLimiter.handleRequest(requestId));
-        clock.increaseBy(2);
+
+        clock.increaseBy(6);
+
         Assertions.assertTrue(rateLimiter.handleRequest(requestId));
     }
 }
+

@@ -1,4 +1,4 @@
-package com.piotr.kafel.atlassian.rate.limiter;
+package com.piotrkafel.atlassian.rate.limiter;
 
 public interface IClock {
 
