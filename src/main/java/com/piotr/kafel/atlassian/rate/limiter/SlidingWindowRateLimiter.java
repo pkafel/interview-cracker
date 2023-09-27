@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class SlidingWindowRateLimiter<T> {
 
@@ -15,9 +16,10 @@ public class SlidingWindowRateLimiter<T> {
 
     private final Map<T, Deque<Long>> store = new ConcurrentHashMap<>();
 
-    public SlidingWindowRateLimiter(int windowMaxCapacity, long windowSizeInNanos, IClock clock) {
+    public SlidingWindowRateLimiter(int windowMaxCapacity, long windowLength, TimeUnit windowLengthTimeUnit, IClock clock) {
+        if(windowMaxCapacity < 1) throw new IllegalArgumentException("Window size cannot be smaller than 1");
         this.windowMaxCapacity = windowMaxCapacity;
-        this.windowSizeInNanos = windowSizeInNanos;
+        this.windowSizeInNanos = windowLengthTimeUnit.toNanos(windowLength);
         this.clock = clock;
     }
 
@@ -29,12 +31,16 @@ public class SlidingWindowRateLimiter<T> {
         // for a given key returns window.
         final Deque<Long> window = store.computeIfAbsent(key, k -> new LinkedList<>());
 
+        // To be sure we do not mess up the window we need to synchronize it.
+        // There is a synchronized Deque implementation but it will not allow us to make .size() and .offer in
+        // single operation. That means we actually make end up in situation where window would become
+        // bigger than windowMaxCapacity.
         synchronized (window) {
-            
-            while (!window.isEmpty() && window.peek() < currentTimeNanos - windowSizeInNanos) {
+            // Remove the oldest entries (from head side) that are outside of current sliding window.
+            while (!window.isEmpty() && window.peek() <= currentTimeNanos - windowSizeInNanos) {
                 window.poll();
             }
-
+            // Check current size of sliding window and if smaller than windowMaxCapacity add new entry (to tail).
             if (window.size() < windowMaxCapacity) {
                 window.offer(currentTimeNanos);
                 return true;
