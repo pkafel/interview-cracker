@@ -25,3 +25,5 @@ replay_pid*
 
 # Intelij
 .idea
+
+out/
