@@ -17,4 +17,21 @@ public class ShopOpeningTimeProblem {
 
         return penalty;
     }
+
+    public static int findBestClosingTime(String log) {
+        int smallestPenalty = Integer.MAX_VALUE;
+        int bestClosingTime = 0;
+
+        String[] logArray = log.split(" ");
+
+        for (int i = 0; i <= logArray.length; i++) {
+            int penalty = computePenalty(log, i);
+            if(penalty < smallestPenalty) {
+                smallestPenalty = penalty;
+                bestClosingTime = i;
+            }
+        }
+
+        return bestClosingTime;
+    }
 }
