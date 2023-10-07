@@ -1,5 +1,8 @@
 package com.piotrkafel.stripe
 
+import java.util.ArrayDeque
+import java.util.Deque
+
 class ShopOpeningTimeProblem {
 
     class OpeningTime {
@@ -37,7 +40,7 @@ class ShopOpeningTimeProblem {
 
         // I assume here the order is defined by BEGIN statement.
         // In case we have to order by END it seems the task is easier.
-        fun getAllClosingTimes(log: String): List<Int> {
+        fun getAllClosingTimesOrderByBegin(log: String): List<Int> {
             val logParts: List<String> = log.split(" ")
 
             var indexOfCurrentPart = -1
@@ -58,6 +61,28 @@ class ShopOpeningTimeProblem {
                 }
             }
             return correctOpeningTime.map { findBestClosingTime(it.customerPresence.toString().trimEnd()) }
+        }
+
+        fun getAllClosingTimesOrderByEnd(log: String): List<Int> {
+            val logParts: List<String> = log.split(" ")
+
+            val result: MutableList<OpeningTime> = arrayListOf()
+            val correctOpeningTime: Deque<OpeningTime> = ArrayDeque()
+            for (part in logParts) {
+                when (part) {
+                    "BEGIN" -> {
+                        correctOpeningTime.push(OpeningTime())
+                    }
+                    "END" -> {
+                        val currentOpeningTime: OpeningTime  = correctOpeningTime.poll()
+                        result.add(currentOpeningTime)
+                    }
+                    else -> {
+                        correctOpeningTime.peek().customerPresence.append(part).append(" ")
+                    }
+                }
+            }
+            return result.map { findBestClosingTime(it.customerPresence.toString().trimEnd()) }
         }
     }
 }

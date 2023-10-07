@@ -26,10 +26,18 @@ class ShopOpeningTimeProblemTest {
     }
 
     @Test
-    fun shouldGetBestClosingTimeCorrectly() {
-        Assertions.assertEquals(listOf(2, 0), ShopOpeningTimeProblem.getAllClosingTimes("BEGIN Y Y END BEGIN N N END"))
-        Assertions.assertEquals(listOf(1, 2, 2), ShopOpeningTimeProblem.getAllClosingTimes("BEGIN BEGIN BEGIN Y Y N Y END Y Y N N END Y N Y N END"))
-        Assertions.assertEquals(listOf(1, 0, 1), ShopOpeningTimeProblem.getAllClosingTimes("BEGIN Y N BEGIN N N BEGIN Y N END Y END Y END"))
-        Assertions.assertEquals(listOf(1, 0), ShopOpeningTimeProblem.getAllClosingTimes("BEGIN Y N END BEGIN N N Y END"))
+    fun shouldGetAllBestClosingTimeByBeginCorrectly() {
+        Assertions.assertEquals(listOf(2, 0), ShopOpeningTimeProblem.getAllClosingTimesOrderByBegin("BEGIN Y Y END BEGIN N N END"))
+        Assertions.assertEquals(listOf(1, 2, 2), ShopOpeningTimeProblem.getAllClosingTimesOrderByBegin("BEGIN BEGIN BEGIN Y Y N Y END Y Y N N END Y N Y N END"))
+        Assertions.assertEquals(listOf(1, 0, 1), ShopOpeningTimeProblem.getAllClosingTimesOrderByBegin("BEGIN Y N BEGIN N N BEGIN Y N END Y END Y END"))
+        Assertions.assertEquals(listOf(1, 0), ShopOpeningTimeProblem.getAllClosingTimesOrderByBegin("BEGIN Y N END BEGIN N N Y END"))
+    }
+
+    @Test
+    fun shouldGetAllBestClosingTimeByEndCorrectly() {
+        Assertions.assertEquals(listOf(2, 0), ShopOpeningTimeProblem.getAllClosingTimesOrderByEnd("BEGIN Y Y END BEGIN N N END"))
+        Assertions.assertEquals(listOf(2, 2, 1), ShopOpeningTimeProblem.getAllClosingTimesOrderByEnd("BEGIN BEGIN BEGIN Y Y N Y END Y Y N N END Y N Y N END"))
+        Assertions.assertEquals(listOf(1, 0, 1), ShopOpeningTimeProblem.getAllClosingTimesOrderByEnd("BEGIN Y N BEGIN N N BEGIN Y N END Y END Y END"))
+        Assertions.assertEquals(listOf(1, 0), ShopOpeningTimeProblem.getAllClosingTimesOrderByEnd("BEGIN Y N END BEGIN N N Y END"))
     }
 }
