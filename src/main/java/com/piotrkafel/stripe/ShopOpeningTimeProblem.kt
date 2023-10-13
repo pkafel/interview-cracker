@@ -38,29 +38,27 @@ class ShopOpeningTimeProblem {
             return bestClosingTime
         }
 
-        // I assume here the order is defined by BEGIN statement.
-        // In case we have to order by END it seems the task is easier.
         fun getAllClosingTimesOrderByBegin(log: String): List<Int> {
             val logParts: List<String> = log.split(" ")
 
             var indexOfCurrentPart = -1
-            val correctOpeningTime: MutableList<OpeningTime> = ArrayList()
+            val correctOpeningTimes: MutableList<OpeningTime> = ArrayList()
             for (part in logParts) {
                 when (part) {
-                    "BEGIN" -> {
-                        correctOpeningTime.add(OpeningTime())
-                        indexOfCurrentPart = correctOpeningTime.size - 1
+                    "BEGIN" -> { // when BEGIN create new opening time and update index to point to current window
+                        correctOpeningTimes.add(OpeningTime())
+                        indexOfCurrentPart = correctOpeningTimes.size - 1
                     }
-                    "END" -> {
-                        correctOpeningTime[indexOfCurrentPart].isClosed = true
-                        indexOfCurrentPart = correctOpeningTime.indexOfLast { !it.isClosed }
+                    "END" -> {  // when END mark the current window as closed and find last not closed window
+                        correctOpeningTimes[indexOfCurrentPart].isClosed = true
+                        indexOfCurrentPart = correctOpeningTimes.indexOfLast { !it.isClosed }
                     }
-                    else -> {
-                        correctOpeningTime[indexOfCurrentPart].customerPresence.append(part).append(" ")
+                    else -> {   // when part of opening time just add it to current window
+                        correctOpeningTimes[indexOfCurrentPart].customerPresence.append(part).append(" ")
                     }
                 }
             }
-            return correctOpeningTime.map { findBestClosingTime(it.customerPresence.toString().trimEnd()) }
+            return correctOpeningTimes.map { findBestClosingTime(it.customerPresence.toString().trimEnd()) }
         }
 
         fun getAllClosingTimesOrderByEnd(log: String): List<Int> {

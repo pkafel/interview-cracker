@@ -1,3 +1,5 @@
+# Stripe
+
 (copy paste from the link below in case someone will remove it)
 
 >Part-1
@@ -20,8 +22,10 @@ Here the input string will be give for multiple stores like below format:
 List getAllClosing(String log);
 // use stack and part-2 function to get all closing time
 
+## My experience
 During my interview with Stripe I had an alternative version of part-3. In my version the task was to implement `get_best_closing_times`. The method would take a polluted log and had to scan for valid sequences of opening hours. For eahc valid sequence it would need to calculate best closing time in return them on a list.
+
 Example input: `Y Y Y BEGIN Y Y Y Y BEGIN Y Y \n Y Y Y END Y BEGIN Y Y Y BEGIN \n Y Y Y Y BEGIN Y Y Y END`
 
-### Links on Leetcode that confirm this question is used:
-* [Here](https://leetcode.com/discuss/interview-question/2585038/Stripe-or-Phone-Screen-or-Senior-SE-or-Reject)
+### Proof of the question
+[Link to Leetcode](https://leetcode.com/discuss/interview-question/2585038/Stripe-or-Phone-Screen-or-Senior-SE-or-Reject)
