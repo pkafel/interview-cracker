@@ -5,7 +5,7 @@
 
 ![L5-US](assets/4162691-L5-US.png)
 
-## Solutions
+### Solutions
 
 * [Phone screen House Robber problem](HouseRobber.java)
   * For testing please use Leetcode challenge [here](https://leetcode.com/problems/house-robber/).
