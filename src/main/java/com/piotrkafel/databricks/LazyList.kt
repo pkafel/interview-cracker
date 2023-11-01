@@ -1,17 +1,20 @@
 package com.piotrkafel.databricks
 
-import java.util.function.Function
+interface LazyList<E> {
 
-// WIP
-class LazyList<E> {
+    fun <O>  map(function: (E) -> O): LazyList<O>
 
-    val storage: List<E> = listOf()
+    fun indexOf(item: E): Int
+}
 
-    fun <I, O>  map(function: Function<I, O>): LazyList<O> {
-        return LazyList()
+class LazyListImpl<E> private constructor(private val items: () -> List<E>): LazyList<E> {
+
+    companion object {
+        @JvmStatic
+        fun <E> of(items: List<E>): LazyList<E> = LazyListImpl { items }
     }
 
-    fun indexOf(item: Any): Int {
-        return 0
-    }
+    override fun <O> map(function: (E) -> O): LazyList<O> = LazyListImpl { items.invoke().map(function) }
+
+    override fun indexOf(item: E): Int = items.invoke().indexOf(item)
 }

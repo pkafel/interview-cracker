@@ -11,3 +11,4 @@
   * For testing please use Leetcode challenge [here](https://leetcode.com/problems/house-robber/).
 * [Phone screen House Robber 2 problem](HouseRobber.java)
   * For testing please use Leetcode challenge [here](https://leetcode.com/problems/house-robber-ii/).
+* [Lazy list implementation](LazyList.kt)
