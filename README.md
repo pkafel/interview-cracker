@@ -9,6 +9,7 @@ The repo is organized by companies. In every company's directory you will find a
 Current list of companies covered:
 * [Atlassian](./src/main/java/com/piotrkafel/atlassian)
 * [Databricks](./src/main/java/com/piotrkafel/databricks)
+* [JP Morgan](./src/main/java/com/piotrkafel/jpmorgan)
 * [Stripe](./src/main/java/com/piotrkafel/stripe)
 
 More to come!
