@@ -10,6 +10,7 @@ Current list of companies covered:
 * [Atlassian](./src/main/java/com/piotrkafel/atlassian)
 * [Databricks](./src/main/java/com/piotrkafel/databricks)
 * [JP Morgan](./src/main/java/com/piotrkafel/jpmorgan)
+* [Meta](./src/main/java/com/piotrkafel/meta)
 * [Stripe](./src/main/java/com/piotrkafel/stripe)
 
 More to come!
