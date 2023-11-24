@@ -7,6 +7,7 @@ Links on Glassdoor:
 * [Atlassian Software Engineer](https://www.glassdoor.com/Interview/Rate-limiter-system-design-tagging-QTN_6514165.htm)
 
 ### Solution
+
 * Fixed window rate limiter
   * [Simple](./rate/limiter/FixedWindowRateLimiterSimple.java)
   * [Optimized](./rate/limiter/FixedWindowRateLimiterDifferent.java)
@@ -19,3 +20,7 @@ For more information about how to implement rate limiter please refer to [README
 [Link to Leetcode](https://leetcode.com/discuss/interview-experience/1938821)
 
 ![Atlassian](./assets/1938821.png)
+
+### Solution
+
+* [Scheduling System](schedulingSystem.md)
