@@ -63,7 +63,7 @@ end
 
 ```sql
 create table execution_tasks(
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     idempotency_key UUID UNIQUE,
     url TEXT,
     execution_scheduled_at TIMESTAMP,
@@ -146,7 +146,7 @@ end
 **Database** - Relational database like Postgresql. The schema would look like this:
 ```sql
 create table execution_tasks(
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     partition_id INT,
     idempotency_key UUID UNIQUE,
     url TEXT,
