@@ -57,9 +57,9 @@ end
 
 #### Components description
 
-**Writer Service** - Stateless HTTP service with Load Balancer in front. Responsible for sending requests for execution to Kafka topic. For each execution request it generates idempotency key which is added to the request.
+**Writer Service** - Stateless HTTP service with Load Balancer in front. Responsible for writing execution requests into a database. For each execution request it generates idempotency key which is added to the request.
 
-**Database** - Relational database like Postgresql. The schema would in this version would look like this:
+**Database** - Relational database like Postgresql. The schema in this version would look like this:
 
 ```roomsql
 create table execution_tasks(
@@ -74,17 +74,17 @@ create table execution_tasks(
 ); 
 ```
 
-**Scheduler Service** - Each instance reads every minute from database requests that need to be executed. To make sure no two jobs are exectued at the same time we could use locking mechanism. Below is the query to pull data with locking:
+**Scheduler Service** - Each instance reads every minute from database requests that need to be executed. To make sure a single request is not executed twice at the same time we will use locking mechanism. Below is the query to pull data with locking:
 
 ```roomsql
 SELECT * FROM scheduled_jobs 
 WHERE execution_time < now() and status="ToDo"
-LIMIT 50
 ORDER BY execution_time DESC
+LIMIT 50
 FOR UPDATE SKIP LOCKED;
 ```
 
-To make sure we do not lock row for too long (for example when instance dies right after calling select for update) we can add a line to our transaction where we set a timeout. It can be done in the following way:
+To make sure we do not lock rows for too long (for example when instance dies right after calling select for update) we can add a line to our transaction where we set a timeout. It can be done in the following way:
 
 ```roomsql
 BEGIN;
@@ -141,7 +141,7 @@ end
 
 **Writer Service** - Stateless HTTP service with Load Balancer in front. Responsible for sending requests for execution to Kafka topic. For each execution request it generates idempotency key which is added to the request.
 
-**Scheduler Service** - Each instance reads from Kafka's topic and store the requests in database. Before writing to db it would check the time of execution. If the execution should happen within next x minutes it would additionally store the request to a local cache (could use priority queue ordered by time of execution). This way we would not need to spend time querying database every minute to find requests that need to be executed. Instead we keep "soon to be executed" requests in memory and add to it periodically (how often would depend on x).
+**Scheduler Service** - Each instance reads from Kafka's topic and store the requests in database. Before writing to db it would check the time of execution. If the execution should happen within next x minutes it would additionally store the request to a local cache (could use priority queue ordered by time of execution). This way we would not need to spend time querying database every minute to find requests that need to be executed. Instead, we keep "soon to be executed" requests in memory and add to it periodically (how often would depend on x).
 
 **Database** - Relational database like Postgresql. The schema would look like this:
 ```roomsql
@@ -184,9 +184,9 @@ If we allow reading existing tasks (for example to check status of execution) we
 
 ## Handling of crashes and duplication
 
-We will focus here on   Scalable solution.
+We will focus here only on Scalable solution.
 
-Its worth noting that unless 3rd-party services which we will be calling support some sort of idempotency key for write operations then we cannot do much about avoiding duplicated calls. The problem here is a matter of distributed transaction which cannot be guaranteed. 
+Its worth noting that unless 3rd-party services, which we will be calling, support some sort of idempotency key for write operations then we cannot do much about avoiding duplicated calls. Our call might be handled and the response returned by the 3rd party service but due to network problems we will never receive the answer. This way from our service perspective the call will look like failed one. 
 
 ### Duplication problem
 
@@ -215,15 +215,19 @@ Database ->> Worker:
 
 #### Writer Service
 
-When Writer Service crashes before writing to Kafka the client will not receive response which should be interpreted as the request was not handled properly. 
+When Writer Service crashes before writing to Kafka the client will not receive response which should be interpreted as if the request was not handled properly. 
 
-If Writer Service crashes after writing to Kafka but before returning anything to user the request to call a service will be executed but the client will not know about it and should consider the initial call as failure.
+If Writer Service crashes after writing to Kafka but before returning anything to user the request to call a service will be executed eventually but the client will not know about it and should consider the initial call as failure.
 
 #### Scheduler Service
 
-If Scheduler Service instance crashes before writing data to database it will not move topic's offset so another instance will read the same message again.
+If Scheduler Service instance crashes after receiving a message but before writing data to database it will not move topic's offset so another instance will read the same message again.
 
 If Scheduler Service instance crashes after writing to database but before acknowledging it to Kafka it means a different instance will read the same request again. When trying to write it to database it will cause unique constraint violation. This should be treated as indicator that the request was already persisted and there is nothing more to do here. 
+
+If Scheduler Service instance crashes after receiving a response from 3rd party but before writing the result to database then the request will be executed again later. This is the case described in [Duplication problem section](#duplication-problem).
+
+In all of the above cases when instance crashes a new one needs to be created. When ramping up it will connect to Kafka and received a partition number which it will read from. The partition number can be used to pull from database the requests that needs to be executed in the nearest future. They should be loaded to memory. After this the instance is ready to perform the task.
 
 ## Other topics to talk about
 * How does Kafka work?
