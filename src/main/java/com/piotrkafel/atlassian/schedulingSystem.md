@@ -61,7 +61,7 @@ end
 
 **Database** - Relational database like Postgresql. The schema in this version would look like this:
 
-```roomsql
+```sql
 create table execution_tasks(
     id BIGINT PRIMARY KEY,
     idempotency_key UUID UNIQUE,
@@ -76,7 +76,7 @@ create table execution_tasks(
 
 **Scheduler Service** - Each instance reads every minute from database requests that need to be executed. To make sure a single request is not executed twice at the same time we will use locking mechanism. Below is the query to pull data with locking:
 
-```roomsql
+```sql
 SELECT * FROM scheduled_jobs 
 WHERE execution_time < now() and status="ToDo"
 ORDER BY execution_time DESC
@@ -86,7 +86,7 @@ FOR UPDATE SKIP LOCKED;
 
 To make sure we do not lock rows for too long (for example when instance dies right after calling select for update) we can add a line to our transaction where we set a timeout. It can be done in the following way:
 
-```roomsql
+```sql
 BEGIN;
 SET statement_timeout = timeout_in_milliseconds;
 -- Your SQL statement with FOR UPDATE
@@ -144,7 +144,7 @@ end
 **Scheduler Service** - Each instance reads from Kafka's topic and store the requests in database. Before writing to db it would check the time of execution. If the execution should happen within next x minutes it would additionally store the request to a local cache (could use priority queue ordered by time of execution). This way we would not need to spend time querying database every minute to find requests that need to be executed. Instead, we keep "soon to be executed" requests in memory and add to it periodically (how often would depend on x).
 
 **Database** - Relational database like Postgresql. The schema would look like this:
-```roomsql
+```sql
 create table execution_tasks(
     id BIGINT PRIMARY KEY,
     partition_id INT,
@@ -237,3 +237,4 @@ In all of the above cases when instance crashes a new one needs to be created. W
 * ["Building a Distributed Task Scheduler With Akka, Kafka, and Cassandra" by David van Geest
   ](https://www.youtube.com/watch?v=s3GfXTnzG_Y) (which was inspiration for this design)
 * [Kafka documentation](https://kafka.apache.org/20/documentation.html#gettingStarted)
+* [Postgresql](https://www.postgresql.org/)
